@@ -8,6 +8,7 @@
 		<members>LeadTriggerHandler</members>
 		<members>DRL_UpdatePotentialAtLaunchBatch</members>
 		<members>DRL_UpdatePotentialAtLaunchBatchTest</members>
+		<members>DRL_OpportunityTriggerHelper</members>
 		<name>ApexClass</name>
 	</types>
 	<types>
