@@ -42,7 +42,7 @@ public class DRL_OpportunityTriggerHelper {
             }
             else {
                 for ( Decimal intSortOrder = 1 ; intSortOrder <=map_CampaignInfluenceConfigurationBySortOrder.size(); intSortOrder++) {
-                    if (blnIsLeadConverted && map_CampaignInfluenceConfigurationBySortOrder.get(intSortOrder).Label == 'Lead Generation') {
+                    if (blnIsLeadConverted && blnSourceCampaignPresent && map_CampaignInfluenceConfigurationBySortOrder.get(intSortOrder).Label == 'Lead Generation') {
                         intTempInfluenceWeightage = Integer.valueOf(map_CampaignInfluenceConfigurationByLabelLeadConverted.get('Source Campaign').Weightage__c);
                         System.debug('2) SourceCampaignWeightage :'+intTempInfluenceWeightage);
                         continue;
