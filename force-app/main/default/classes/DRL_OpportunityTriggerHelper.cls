@@ -10,7 +10,7 @@
 *********************************************************************************************************/
 public class DRL_OpportunityTriggerHelper {
     
-    public static void CalculateInfluencePercentage(Opportunity objOpportunity, Opportunity objOldOpportunity, Boolean blnIsLeadConverted, Boolean blnSourceCampaignPresent) {
+    public static void CalculateInfluencePercentage(Opportunity objOpportunity, Opportunity objOldOpportunity, Boolean blnIsLeadConverted, Boolean blnSourceCampaignPresent, Integer intOldInfluenceWeightage) {
         Map<String, DRL_CampaignInfluenceConfiguration__mdt> map_CampaignInfluenceConfigurationByLabel = new Map<String, DRL_CampaignInfluenceConfiguration__mdt>();
         Map<Decimal, DRL_CampaignInfluenceConfiguration__mdt> map_CampaignInfluenceConfigurationBySortOrder = new Map<Decimal, DRL_CampaignInfluenceConfiguration__mdt>();
         Map<String, DRL_CampaignInfluenceConfiguration__mdt> map_CampaignInfluenceConfigurationByLabelLeadConverted = new Map<String, DRL_CampaignInfluenceConfiguration__mdt>();
@@ -20,11 +20,11 @@ public class DRL_OpportunityTriggerHelper {
                 map_CampaignInfluenceConfigurationByLabelLeadConverted.put(objCampaignInfluenceConfiguration.Label, objCampaignInfluenceConfiguration);
             }
             else {
-                map_CampaignInfluenceConfigurationByLabel.put(objCampaignInfluenceConfiguration.Label,objCampaignInfluenceConfiguration);
-            	map_CampaignInfluenceConfigurationBySortOrder.put(objCampaignInfluenceConfiguration.SortOrder__c,objCampaignInfluenceConfiguration);
+                map_CampaignInfluenceConfigurationByLabel.put(objCampaignInfluenceConfiguration.Label, objCampaignInfluenceConfiguration);
+            	map_CampaignInfluenceConfigurationBySortOrder.put(objCampaignInfluenceConfiguration.SortOrder__c, objCampaignInfluenceConfiguration);
             }  
         }
-        
+       
         if (objOldOpportunity == null) {
             Integer intTempInfluenceWeightage = 0;
             
@@ -41,7 +41,8 @@ public class DRL_OpportunityTriggerHelper {
                 System.debug('1) FinalTempInfluenceWeightage :'+intTempInfluenceWeightage);  
             }
             else {
-                for ( Decimal intSortOrder = 1 ; intSortOrder <=map_CampaignInfluenceConfigurationBySortOrder.size(); intSortOrder++) {
+                //When Stage beyond - Bio Batch Ordered
+                for ( Decimal intSortOrder = 1 ; intSortOrder <= map_CampaignInfluenceConfigurationBySortOrder.size(); intSortOrder++) {
                     if (blnIsLeadConverted && blnSourceCampaignPresent && map_CampaignInfluenceConfigurationBySortOrder.get(intSortOrder).Label == 'Lead Generation') {
                         intTempInfluenceWeightage = Integer.valueOf(map_CampaignInfluenceConfigurationByLabelLeadConverted.get('Source Campaign').Weightage__c);
                         System.debug('2) SourceCampaignWeightage :'+intTempInfluenceWeightage);
@@ -54,7 +55,8 @@ public class DRL_OpportunityTriggerHelper {
             }
         }
         else {
-            Integer intTempInfluenceWeightage = 0;
+            //Assign the previos Percentage Value when stage is updated.
+            Integer intTempInfluenceWeightage = intOldInfluenceWeightage;
             
             if (map_CampaignInfluenceConfigurationByLabel.containsKey(objOpportunity.StageName)) {
                 for ( Decimal intSortOrder = map_CampaignInfluenceConfigurationByLabel.get(objOldOpportunity.StageName).SortOrder__c+1 ; intSortOrder <= map_CampaignInfluenceConfigurationByLabel.get(objOpportunity.StageName).SortOrder__c; intSortOrder++) {
@@ -64,6 +66,7 @@ public class DRL_OpportunityTriggerHelper {
                 System.debug('3) FinalTempInfluenceWeightageOldOpp :'+intTempInfluenceWeightage);    
             }
             else {
+                //When Stage beyond - Bio Batch Ordered
                 for ( Decimal intSortOrder = map_CampaignInfluenceConfigurationByLabel.get(objOldOpportunity.StageName).SortOrder__c+1; intSortOrder <= map_CampaignInfluenceConfigurationBySortOrder.size(); intSortOrder++ ) {
                     intTempInfluenceWeightage = intTempInfluenceWeightage + Integer.valueof(map_CampaignInfluenceConfigurationBySortOrder.get(intSortOrder).Weightage__c);
                     System.debug('4) TempInfluenceWeightageOldOppBeyondMetadata :'+intTempInfluenceWeightage);
